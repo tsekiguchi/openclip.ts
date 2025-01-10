@@ -1,0 +1,21 @@
+{
+  "name": "openclip.ts",
+  "version": "1.0.0",
+  "description": "A typescript implementation of the python open_clip library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Tim Sekiguchi <sekiguchi.tim@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  },
+  "repository": "https://github.com/tsekiguchi/openclip.ts.git",
+  "dependencies": {
+    "onnxruntime-node": "^1.20.1",
+    "onnxruntime-web": "^1.20.1"
+  }
+}
