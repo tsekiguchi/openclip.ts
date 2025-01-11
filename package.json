@@ -1,21 +1,32 @@
 {
-  "name": "openclip.ts",
-  "version": "1.0.0",
-  "description": "A typescript implementation of the python open_clip library",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "Tim Sekiguchi <sekiguchi.tim@gmail.com>",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/node": "^22.10.5",
-    "typescript": "^5.7.3"
-  },
-  "repository": "https://github.com/tsekiguchi/openclip.ts.git",
-  "dependencies": {
-    "onnxruntime-node": "^1.20.1",
-    "onnxruntime-web": "^1.20.1"
-  }
+	"name": "openclip.ts",
+	"type": "module",
+	"version": "1.0.0",
+	"description": "A typescript implementation of the python open_clip library",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsc && cpy 'src/tokenizers/*.gz' dist/tokenizers/",
+		"start": "npm run build && node dist/index.js"
+	},
+	"keywords": [],
+	"author": "Tim Sekiguchi <sekiguchi.tim@gmail.com>",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/node": "^22.10.5",
+		"cpy-cli": "^5.0.0",
+		"typescript": "^5.7.3"
+	},
+	"repository": "https://github.com/tsekiguchi/openclip.ts.git",
+	"dependencies": {
+		"entities": "^6.0.0",
+		"ftfy": "^1.0.1",
+		"natural": "^8.0.1",
+		"onnxruntime-node": "^1.20.1",
+		"onnxruntime-web": "^1.20.1"
+	},
+	"files": [
+		"dist",
+		"src/tokenizers/*.gz"
+	]
 }
