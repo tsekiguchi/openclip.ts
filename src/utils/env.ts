@@ -27,6 +27,7 @@ import path from "path";
 import url from "url";
 
 import { Env } from "onnxruntime-web";
+import { LogLevel } from "./logger";
 
 const VERSION = "3.2.4";
 
@@ -178,6 +179,11 @@ export interface TransformersEnvironment {
 	useCustomCache: boolean;
 
 	/**
+	 * Set the log level
+	 */
+	logLevel: LogLevel
+
+	/**
 	 * The custom cache to use. Defaults to `null`. Note: this must be an object which
 	 * implements the `match` and `put` functions of the Web Cache API.
 	 */
@@ -215,6 +221,7 @@ export const env: TransformersEnvironment = {
 	useCustomCache: false,
 	customCache: null,
 	//////////////////////////////////////////////////////
+	logLevel: "INFO"
 };
 
 /**
