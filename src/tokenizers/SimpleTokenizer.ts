@@ -1,7 +1,6 @@
 import path from "path";
 import * as zlib from "zlib";
 import FS from "fs";
-import fs from "fs/promises";
 import { decodeHTML } from "entities";
 import * as ort from "onnxruntime-web";
 import natural from "natural";
@@ -39,7 +38,7 @@ type Encoder = Map<string, number>;
 type Decoder = Map<number, string>;
 
 /**
- * Returns list of utf-8 byte and a corresponding list of unicode strings.
+ * Returns array of utf-8 byte and a corresponding list of unicode strings.
  * The reversible bpe codes work on unicode strings.
  * This means you need a large # of unicode characters in your vocab if you want to avoid UNKs.
  * When you're at something like a 10B token dataset you end up needing around 5K for decent coverage.
@@ -47,6 +46,7 @@ type Decoder = Map<number, string>;
  * To avoid that, we want lookup tables between utf-8 bytes and unicode strings.
  * And avoids mapping to whitespace/control characters the bpe code barfs on.
  */
+
 export class SimpleTokenizer {
 	private config: SimpleTokenizerConfig;
 	private sotToken = "<start_of_text>";
@@ -80,11 +80,15 @@ export class SimpleTokenizer {
 		this.byteEncoder = byteEncoder;
 		this.byteDecoder = byteDecoder;
 
-		const merges = this.readBPEVocab(this.config.bpePath);
+		// Read all merges from file, set to an array of strings
+		// Cannot be set to tuples, as JS does not have the ability to
+		// look up tuples on a map
+		const merges = this.readMerges(this.config.bpePath);
 		this.bpeRanks = new Map<string, number>(
 			merges.map((merge, index) => [merge, index])
 		);
 
+		// Build the vocab
 		const vocab = this.createVocab(merges);
 
 		// Add special tokens, plus any additional from config
@@ -93,9 +97,9 @@ export class SimpleTokenizer {
 		this.cache = new Map<string, string>(
 			specialTokens.map((token) => [token, token])
 		);
-
 		const special = specialTokens.join("|");
 
+		// Set our patterns for 
 		// PYTHON:
 		// self.pat = re.compile(
 		// 		special + r"""|'s|'t|'re|'ve|'m|'ll|'d|[\p{L}]+|[\p{N}]|[^\s\p{L}\p{N}]+""",
@@ -113,12 +117,14 @@ export class SimpleTokenizer {
 		this.decoder = decoder;
 		this.vocabSize = encoder.keys.length;
 
+		// Get special token ids
 		this.allSpecialIds = specialTokens
 			.map((t) => encoder.get(t))
 			.filter((t) => t !== undefined);
 		this.sotTokenId = encoder.get(this.sotToken)!;
 		this.eotTokenId = encoder.get(this.eotToken)!;
 
+		// Set clean & reduction functions
 		this.cleanFn = this.getCleanFunction(this.config.clean);
 		this.reductionFn = this.config.reductionMask
 			? this.getReductionMaskFn(this.config.reductionMask)
@@ -232,7 +238,7 @@ export class SimpleTokenizer {
 	 * @param bpePath Path to the bpe simple vocab file
 	 * @returns Merges string[]
 	 */
-	private readBPEVocab(bpePath: string): string[] {
+	private readMerges(bpePath: string): string[] {
 		const buffer = FS.readFileSync(bpePath);
 		const content = zlib.gunzipSync(buffer).toString("utf-8");
 		const lines = content.split("\n");
@@ -243,10 +249,6 @@ export class SimpleTokenizer {
 
 		// Convert each line into a tuple of strings
 		const merges: string[] = slicedLines.filter((line) => line.trim() !== ""); // Skip empty lines
-		// .map((line) => {
-		// 	const [first, second] = line.split(/\s+/);
-		// 	return [first, second] as [string, string];
-		// });
 
 		return merges;
 	}
